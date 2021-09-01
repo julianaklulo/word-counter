@@ -27,7 +27,7 @@ $ poetry run uvicorn app.main:app --reload
 
 The application will be available at **http://127.0.0.1:8000**.
 
-An interative auto-generated documentation provided by FastAPI will be availabe at **http://127.0.0.1:8000/docs**.
+An interative auto-generated documentation provided by FastAPI will be available at **http://127.0.0.1:8000/docs**.
 
 
 ### Testing Instructions
