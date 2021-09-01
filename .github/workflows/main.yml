@@ -9,14 +9,20 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./word_counter
     steps:
       - uses: actions/checkout@v2
       - name: Run linters
         run: make lint
 
   test:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-        - name: Run tests
-          run: make test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./word_counter
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run tests
+        run: make test
