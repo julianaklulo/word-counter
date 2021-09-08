@@ -1,24 +1,33 @@
 from datetime import datetime
 
+import pytest
 from freezegun import freeze_time
 
 from app.main import word_counter
+from app.models import Submission
 
 
-def test_word_counter():
+@pytest.mark.parametrize(
+    "text, expected_word_count",
+    [
+        ("Text file with 5 words", 5),
+        ("This text has a total of 8 words", 8),
+        ("", 0),
+        ("Word", 1),
+    ],
+)
+def test_word_counter(text, expected_word_count):
     """
     Test the word counter function to check if return value is
     correct.
     """
-    text = "Text file with 5 words"
     word_count = word_counter(text)
-    assert word_count == 5
+    assert word_count == expected_word_count
 
 
 @freeze_time("2021-08-29T00:00:00")
 def test_create_submission(client):
     """Test the endpoint that creates a word counter submission."""
-
     file = {"file": ("file1.txt", "bla")}
     response = client.post("/word-counter", files=file)
     assert response.status_code == 201
@@ -30,14 +39,13 @@ def test_create_submission(client):
     assert response_data["word_count"] == 1
 
 
-@freeze_time("2021-08-29T00:00:00")
-def test_read_submissions(client):
+def test_read_submissions(session, submission, another_submission, client):
     """Test the endpoint that retrieves word counter submissions."""
-    file1 = {"file": ("file1.txt", "bla")}
-    client.post("/word-counter", files=file1)
+    session.add(Submission(**submission.dict()))
+    session.commit()
 
-    file2 = {"file": ("file2.txt", "bla bla")}
-    client.post("/word-counter", files=file2)
+    session.add(Submission(**another_submission.dict()))
+    session.commit()
 
     response = client.get("/word-counter")
     assert response.status_code == 200
@@ -47,23 +55,24 @@ def test_read_submissions(client):
     assert len(submissions) == 2
     assert submissions[0]["filename"] == "file1.txt"
     assert submissions[0]["timestamp"] == "2021-08-29T00:00:00"
-    assert submissions[0]["word_count"] == 1
+    assert submissions[0]["word_count"] == 5
 
     assert submissions[1]["filename"] == "file2.txt"
-    assert submissions[1]["timestamp"] == "2021-08-29T00:00:00"
-    assert submissions[1]["word_count"] == 2
+    assert submissions[1]["timestamp"] == "2021-08-29T00:10:00"
+    assert submissions[1]["word_count"] == 3
 
 
-@freeze_time("2021-08-29T00:30:00")
-def test_read_submissions_filter_by_filename(client):
+def test_read_submissions_filter_by_filename(
+    session, submission, another_submission, client
+):
     """Test the endpoint that retrieves word counter submissions
     filtering by filename.
     """
-    file1 = {"file": ("file1.txt", "bla")}
-    client.post("/word-counter", files=file1)
+    session.add(Submission(**submission.dict()))
+    session.commit()
 
-    file2 = {"file": ("file2.txt", "bla bla")}
-    client.post("/word-counter", files=file2)
+    session.add(Submission(**another_submission.dict()))
+    session.commit()
 
     response = client.get("/word-counter", params={"filename": "file1.txt"})
     assert response.status_code == 200
@@ -74,20 +83,20 @@ def test_read_submissions_filter_by_filename(client):
     assert submissions_by_filename[0]["filename"] == "file1.txt"
 
 
-def test_read_submissions_filter_by_date_range(client):
+def test_read_submissions_filter_by_date_range(
+    session, submission, another_submission, client
+):
     """Test the endpoint that retrieves word counter submissions filtering
     by date range.
     """
-    with freeze_time("2021-08-29T00:15:00"):
-        file1 = {"file": ("file1.txt", "bla")}
-        client.post("/word-counter", files=file1)
+    session.add(Submission(**submission.dict()))
+    session.commit()
 
-    with freeze_time("2021-08-29T00:20:00"):
-        file2 = {"file": ("file2.txt", "bla bla")}
-        client.post("/word-counter", files=file2)
+    session.add(Submission(**another_submission.dict()))
+    session.commit()
 
     initial_timestamp = "2021-08-29T00:00:00"
-    final_timestamp = "2021-08-29T00:19:00"
+    final_timestamp = "2021-08-29T00:09:00"
 
     response = client.get(
         "/word-counter",
@@ -113,17 +122,17 @@ def test_read_submissions_filter_by_date_range(client):
     assert initial_timestamp <= filtered_submission_timestamp <= final_timestamp
 
 
-def test_read_submissions_filter_by_filename_and_date_range(client):
+def test_read_submissions_filter_by_filename_and_date_range(
+    session, submission, another_submission, client
+):
     """Test the endpoint that retrieves word counter submissions filtering
     by filename and date range.
     """
-    with freeze_time("2021-08-29T00:15:00"):
-        file1 = {"file": ("file1.txt", "bla")}
-        client.post("/word-counter", files=file1)
+    session.add(Submission(**submission.dict()))
+    session.commit()
 
-    with freeze_time("2021-08-29T00:20:00"):
-        file2 = {"file": ("file2.txt", "bla bla")}
-        client.post("/word-counter", files=file2)
+    session.add(Submission(**another_submission.dict()))
+    session.commit()
 
     initial_timestamp = "2021-08-29T00:10:00"
     final_timestamp = "2021-08-29T00:30:00"

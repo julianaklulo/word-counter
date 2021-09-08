@@ -50,3 +50,12 @@ def submission():
         timestamp=datetime.strptime("2021-08-29T00:00:00", "%Y-%m-%dT%H:%M:%S"),
         word_count=5,
     )
+
+
+@fixture
+def another_submission():
+    return schemas.SubmissionCreate(
+        filename="file2.txt",
+        timestamp=datetime.strptime("2021-08-29T00:10:00", "%Y-%m-%dT%H:%M:%S"),
+        word_count=3,
+    )
