@@ -179,3 +179,11 @@ $ terraform apply
 ```
 
 The new code will be available at the application IP which will be printed on the terminal.
+
+### Destroying the infrastructure
+If you wish to delete the created resources at AWS, delete the database at AWS RDS and then run:
+```bash
+$ terraform destroy
+```
+
+***There will be costs when deploying the infrastructure at AWS, so remember to destroy the resources when you no longer wish to keep the application running***
