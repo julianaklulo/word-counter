@@ -17,9 +17,6 @@ clean-build:
 install:
 	poetry install
 
-test: install
-	poetry run pytest
-
 format: install
 	poetry run isort app tests
 	poetry run black app tests
@@ -27,3 +24,14 @@ format: install
 lint: install
 	poetry run isort --check app tests
 	poetry run black --check app tests
+
+test: 
+	docker-compose up --build --abort-on-container-exit --force-recreate --exit-code-from tests tests; docker-compose down
+
+run: 
+	docker-compose up --build word-counter postgres
+
+down:
+	docker-compose down
+
+SHELL := /bin/bash

@@ -1,0 +1,47 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: teste
+      POSTGRES_PASSWORD: teste12345678910
+      POSTGRES_DB: wordcounter
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U teste -d wordcounter"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  word-counter:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://teste:teste12345678910@postgres:5432/wordcounter
+    ports:
+      - "8000:80"
+  postgres-test:
+    image: postgres
+    environment:
+      POSTGRES_USER: teste
+      POSTGRES_PASSWORD: teste12345678910
+      POSTGRES_DB: wordcounter-test
+    ports:
+      - "5432:5432"
+  tests:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      - postgres-test
+    environment:
+      DATABASE_URL: postgresql://teste:teste12345678910@postgres-test:5432/wordcounter-test
+    working_dir: /app
+    command:
+      [
+        "./tests.sh"
+      ]
