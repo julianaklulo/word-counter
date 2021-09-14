@@ -30,36 +30,30 @@ The application will be available at **http://127.0.0.1:8000**.
 An interative auto-generated documentation provided by FastAPI will be available at **http://127.0.0.1:8000/docs**.
 
 
-### Testing instructions
-The tests were written using `pytest`. To run, type
-```bash
-$ poetry run pytest
-```
-
-
 ### Running the application using Docker
-To run the application on a container, use the provided Dockerfile.
+Use `docker-compose` to run the application and the database inside containers.
 
 Instructions:
 1. Move into the correct folder
 ```bash
-$ cd word-counter
+$ cd word-counter/word_counter
 ```
-2. Build the image
+2. Run the application
 ```bash
-$ docker build -t word-counter .
+$ make run
 ```
-3. Run the image on a container
+3. Stop the application
 ```bash
-$ docker run -d --name wordcounter -p 80:80 word-counter
-```
-4. By default it will use SQLite. If you want to use another database, pass the connection string as an env var
-```bash
-$ docker run -d --name wordcounter --env DATABASE_URL=<connection string to the database here> -p 80:80 word-counter
+$ make down
 ```
 
-The application will be available at **http://127.0.0.1** and the auto-generated documentation at **http://127.0.0.1/docs**.
+The application will be available at **http://127.0.0.1:8000** and the auto-generated documentation at **http://127.0.0.1:8000/docs**.
 
+### Testing instructions
+The tests were written using `pytest`. To run, type
+```bash
+$ make test
+```
 ### API documentation
 Each submission has:
 - ID (auto generated)
@@ -142,7 +136,7 @@ You may also need `kubectl` to connect to the cluster and check the running serv
 Instructions:
 1. Move into the infrastructure folder
 ```bash
-$ cd infrastructure
+$ cd word-counter/infrastructure
 ```
 2. Set the database username and password as env vars (with `TF_VAR` as prefix):
 ```bash
