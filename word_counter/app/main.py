@@ -2,12 +2,19 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.database import engine, get_session
 
-models.Base.metadata.create_all(bind=engine)
+# this ensures that the database tables will be created only once
+# when running the application with mutiple threads
+try:
+    models.Base.metadata.create_all(bind=engine)
+except IntegrityError:
+    pass
+
 
 app = FastAPI()
 
