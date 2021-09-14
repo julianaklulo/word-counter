@@ -43,5 +43,5 @@ services:
     working_dir: /app
     command:
       [
-        "./tests.sh"
+        "./tests/tests.sh"
       ]
