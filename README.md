@@ -31,7 +31,7 @@ An interative auto-generated documentation provided by FastAPI will be available
 
 
 ### Running the application using Docker
-Use `docker-compose` to run the application and the database inside containers.
+Use `docker-compose` to run the application and a PostgreSQL database inside containers.
 
 Instructions:
 1. Move into the correct folder
