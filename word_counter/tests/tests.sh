@@ -1,6 +1,4 @@
 #! /bin/bash
 
-pip install pytest black isort freezegun
+pip install pytest freezegun
 pytest
-isort --check app tests
-black --check app tests
