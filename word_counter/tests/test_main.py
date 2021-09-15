@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import pytest
+from fastapi import status
 from freezegun import freeze_time
 
 from app.main import word_counter
@@ -30,7 +31,7 @@ def test_create_submission(client):
     """Test the endpoint that creates a word counter submission."""
     file = {"file": ("file1.txt", "bla")}
     response = client.post("/word-counter", files=file)
-    assert response.status_code == 201
+    assert response.status_code == status.HTTP_201_CREATED
 
     response_data = response.json()
 
@@ -48,7 +49,7 @@ def test_read_submissions(session, submission, another_submission, client):
     session.commit()
 
     response = client.get("/word-counter")
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
 
     submissions = response.json()
 
@@ -75,7 +76,7 @@ def test_read_submissions_filter_by_filename(
     session.commit()
 
     response = client.get("/word-counter", params={"filename": "file1.txt"})
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
 
     submissions_by_filename = response.json()
 
@@ -105,7 +106,7 @@ def test_read_submissions_filter_by_date_range(
             "final_timestamp": final_timestamp,
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
 
     submissions_by_date_range = response.json()
 
@@ -145,7 +146,7 @@ def test_read_submissions_filter_by_filename_and_date_range(
             "filename": "file2.txt",
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
 
     submissions = response.json()
 
@@ -177,7 +178,7 @@ def test_read_submissions_filter_by_invalid_date_range(client):
             "final_timestamp": final_timestamp,
         },
     )
-    assert response.status_code == 400
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
     response = response.json()
     assert (
         response["detail"] == "Final timestamp must be greater than initial timestamp."
@@ -196,7 +197,7 @@ def test_read_submissions_filter_by_missing_date_range(client):
             "initial_timestamp": initial_timestamp,
         },
     )
-    assert response.status_code == 400
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
     response = response.json()
     assert (
         response["detail"]
@@ -209,6 +210,6 @@ def test_read_submissions_with_empty_response(client):
     response when there is none submissions to return.
     """
     response = client.get("/word-counter")
-    assert response.status_code == 204
+    assert response.status_code == status.HTTP_204_NO_CONTENT
     response = response.json()
     assert response["detail"] == "No Content"
